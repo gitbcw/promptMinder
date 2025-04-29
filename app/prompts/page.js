@@ -125,6 +125,8 @@ const NewPromptCard = ({ onClick }) => {
   );
 };
 
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+
 export default function PromptsPage() {
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
