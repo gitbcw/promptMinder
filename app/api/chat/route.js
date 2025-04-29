@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const DEFAULT_API_KEY = process.env.ZHIPU_API_KEY;
+const QWEN_API_KEY = process.env.QWEN_API_KEY;
+const ZHIPU_API_KEY = process.env.ZHIPU_API_KEY;
+const QWEN_BASE_URL = process.env.QWEN_BASE_URL;
+const GLM_BASE_URL = 'https://open.bigmodel.cn/api/paas/v4';
 
 export async function POST(request) {
   try {
@@ -14,11 +17,21 @@ export async function POST(request) {
       temperature = 0.7,
       max_tokens = 2000,
       top_p = 0.7,
-      baseURL = 'https://open.bigmodel.cn/api/paas/v4'
+      baseURL
     } = body;
 
-    const finalApiKey = apiKey || DEFAULT_API_KEY;
-    
+    let finalApiKey = apiKey;
+    let finalBaseURL = baseURL;
+    if (!finalApiKey) {
+      console.log('使用model:', model);
+      if (model === 'qwen-plus-latest') {
+        finalApiKey = QWEN_API_KEY;
+        finalBaseURL = QWEN_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+      } else {
+        finalApiKey = ZHIPU_API_KEY;
+        finalBaseURL = GLM_BASE_URL;
+      }
+    }
     if (!finalApiKey) {
       throw new Error('未提供 API Key');
     }
@@ -26,7 +39,7 @@ export async function POST(request) {
     // 创建 OpenAI 客户端实例，使用传入的 baseURL
     const openai = new OpenAI({
       apiKey: finalApiKey,
-      baseURL: baseURL,
+      baseURL: finalBaseURL,
     });
     // 准备发送给 AI 的消息
     const aiMessages = [

@@ -175,10 +175,20 @@ export default function ChatTest({ prompt }) {
   const handleModelChange = (e) => {
     const newModel = e.target.value;
     setCustomModel(newModel);
+
+    // 自动切换 baseURL
+    let newBaseURL = baseURL;
+    if (newModel === 'glm-4-flash') {
+      newBaseURL = 'https://open.bigmodel.cn/api/paas/v4';
+    } else if (newModel === 'qwen-plus-latest') {
+      newBaseURL = process.env.NEXT_PUBLIC_QWEN_BASE_URL || process.env.QWEN_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+    }
+    setBaseURL(newBaseURL);
+
     saveSettings({
       apiKey: apiKey,
       model: newModel,
-      baseURL: baseURL
+      baseURL: newBaseURL
     });
   };
 
@@ -267,6 +277,7 @@ export default function ChatTest({ prompt }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="glm-4-flash">GLM-4-Flash (免费)</SelectItem>
+                    <SelectItem value="qwen-plus-latest">Qwen-Plus-Latest</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
